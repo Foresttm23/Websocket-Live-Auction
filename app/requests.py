@@ -43,7 +43,7 @@ class LotResponse(BaseModel):
     time_till_end: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
     @property
     def time_till_end(self):
