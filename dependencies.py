@@ -1,9 +1,5 @@
+from database import db
 
-
-
-def get_manager():
-    return manager
-
-
-def get_app():
-    return app
+async def get_session():
+    async with db.AsyncSessionLocal() as session:
+        yield session

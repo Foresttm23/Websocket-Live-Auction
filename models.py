@@ -17,7 +17,7 @@ class Lot(Base):
     start_price = Column(Numeric, default=1)
     status = Column(Enum(LotStatus), default=LotStatus.running)
 
-    start_time = Column(DateTime, default=datetime.utcnow)
+    start_time = Column(DateTime, default=datetime.utcnow)  # Basically unused, but overall can be good for tracking
     end_time = Column(DateTime, default=lambda: datetime.utcnow() + timedelta(seconds=60))
 
     bids = relationship("Bid", back_populates="lot")
@@ -29,4 +29,5 @@ class Bid(Base):
     lot_id = Column(Integer, ForeignKey("lots.id"))
     bidder = Column(String)
     amount = Column(Numeric)
+
     lot = relationship("Lot", back_populates="bids")

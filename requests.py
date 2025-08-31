@@ -1,16 +1,17 @@
 from pydantic import BaseModel, Field
 from models import LotStatus
+from datetime import datetime
 
 
 class BidRequest(BaseModel):
-    lot_id: int = Field(gt=0)
+    # lot_id: int = Field(gt=0)  Not used since lot_id is passed in `Path` endpoint
     bidder: str = Field(min_length=1)
     amount: int = Field(gt=0)
 
     model_config = {
         "json_schema_extra": {
             "example": {
-                "lot_id": "1",
+                # "lot_id": "1",
                 "bidder": "Maks",
                 "amount": "100",
             }
@@ -32,3 +33,18 @@ class LotRequest(BaseModel):
             }
         }
     }
+
+
+class LotResponse(BaseModel):
+    id: int
+    name: str
+    status: str
+    start_time: datetime
+    time_till_end: int
+
+    class Config:
+        orm_mode = True
+
+    @property
+    def time_till_end(self):
+        return max((self.end_time - datetime.utcnow()).total_seconds(), 0)
