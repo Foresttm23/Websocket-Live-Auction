@@ -87,3 +87,7 @@ async def ws_subscribe_to_lot(websocket: WebSocket, lot_id: int):
 
     except WebSocketDisconnect:
         manager.disconnect(websocket, lot_id)
+
+    except Exception as e:
+        print(f"WebSocket error: {e}")
+        manager.disconnect(websocket, lot_id)

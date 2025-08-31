@@ -2,22 +2,30 @@ services:
   db:
     image: postgres:16
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: dbname
+      POSTGRES_USER: forest
+      POSTGRES_PASSWORD: 2515
+      POSTGRES_DB: auction
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U forest -d auction"]
+      interval: 5s
+      retries: 5
+      start_period: 10s
+    restart: always
 
   web:
     build: .
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
       - "8000:8000"
     environment:
       DATABASE_URL: postgresql+asyncpg://forest:2515@db:5432/auction
+    restart: always
 
 volumes:
   pgdata:

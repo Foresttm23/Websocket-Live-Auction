@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 from models import LotStatus
 from datetime import datetime
 
@@ -37,14 +37,15 @@ class LotRequest(BaseModel):
 
 class LotResponse(BaseModel):
     id: int
-    name: str
+    title: str
     status: str
     start_time: datetime
-    time_till_end: int
+    end_time: datetime
+
+    @computed_field
+    @property
+    def time_till_end(self) -> float:
+        return max((self.end_time - datetime.utcnow()).total_seconds(), 0)
 
     class Config:
-        from_attributes = True
-
-    @property
-    def time_till_end(self):
-        return max((self.end_time - datetime.utcnow()).total_seconds(), 0)
+        orm_mode = True
