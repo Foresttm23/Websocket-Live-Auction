@@ -17,7 +17,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql+asyncpg://user:password@db:5432/dbname
+      DATABASE_URL: postgresql+asyncpg://forest:2515@db:5432/auction
 
 volumes:
   pgdata:
