@@ -1,6 +1,6 @@
 import asyncio
 from datetime import datetime, timedelta
-from sqlalchemy import select, func
+from sqlalchemy import select
 
 from connection_manager import manager
 from models import Lot, Bid, LotStatus
@@ -33,7 +33,9 @@ class LotWatcher:
                         changed = True
 
                         result = await session.execute(
-                            select(func.max(Bid.amount)).where(Bid.lot_id == lot.id)
+                            select(Bid.amount)
+                            .where(Bid.lot_id == lot.id)
+                            .order_by(Bid.amount.desc())
                         )
                         highest_bid = result.scalar() or 0
 
@@ -41,7 +43,8 @@ class LotWatcher:
                             lot.id,
                             {
                                 "message": "Lot ended",
-                                "highest_bid": highest_bid,
+                                "start_price": float(lot.start_price),
+                                "highest_bid": float(highest_bid),
                                 "lot_id": lot.id
                             }
                         )
@@ -53,7 +56,9 @@ class LotWatcher:
                     for lot in running_lots:
                         if lot.status == LotStatus.running:
                             result = await session.execute(
-                                select(func.max(Bid.amount)).where(Bid.lot_id == lot.id)
+                                select(Bid.amount)
+                                .where(Bid.lot_id == lot.id)
+                                .order_by(Bid.amount.desc())
                             )
                             highest_bid = result.scalar() or 0
 
@@ -63,17 +68,14 @@ class LotWatcher:
                                 {
                                     "message": "Time update",
                                     "lot_id": lot.id,
-                                    "highest_bid": highest_bid,
+                                    "start_price": float(lot.start_price),
+                                    "highest_bid": float(highest_bid),
                                     "time_till_end": time_left
                                 }
                             )
                     self.last_broadcast = now
 
             await asyncio.sleep(self.interval)
-
-    def start(self):
-        if not self.task:
-            self.task = asyncio.create_task(self.check_lots())
 
 
 lot_watcher = LotWatcher()

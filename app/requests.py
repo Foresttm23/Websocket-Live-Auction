@@ -48,4 +48,4 @@ class LotResponse(BaseModel):
         return max((self.end_time - datetime.utcnow()).total_seconds(), 0)
 
     class Config:
-        orm_mode = True
+        from_attributes = True

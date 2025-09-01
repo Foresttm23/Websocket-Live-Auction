@@ -55,12 +55,15 @@ async def place_bid(lot_id: int, bid_request: BidRequest, session: AsyncSession 
 
     await session.commit()
 
-    await manager.broadcast(lot_id, {
-        "message": "New bid placed",
-        "amount": bid_request.amount,
-        "bidder": bid_request.bidder,
-        "time left": abs(datetime.utcnow() - lot.end_time)
-    })
+    try:
+        await manager.broadcast(lot_id, {
+            "message": "New bid placed",
+            "amount": float(bid_request.amount),
+            "bidder": bid_request.bidder,
+            "time left": max((lot.end_time - datetime.utcnow()).total_seconds(), 0)
+        })
+    except Exception as e:
+        print ("Broadcast error:", e)
 
     return {
         "message": "Bid placed",
@@ -86,8 +89,4 @@ async def ws_subscribe_to_lot(websocket: WebSocket, lot_id: int):
             await websocket.receive_text()
 
     except WebSocketDisconnect:
-        manager.disconnect(websocket, lot_id)
-
-    except Exception as e:
-        print(f"WebSocket error: {e}")
         manager.disconnect(websocket, lot_id)
