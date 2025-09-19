@@ -1,6 +1,5 @@
 from fastapi import WebSocket, WebSocketDisconnect, APIRouter, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 
 from connection_manager import manager
 from database import db_dependency
@@ -33,16 +32,13 @@ async def place_bid(lot_id: int, bid_request: BidRequest, db: AsyncSession = db_
     """
     Places a bid, and refreshes the timer
     """
-    result = await db.execute(select(Lot).where(Lot.id == lot_id))
-    lot = result.scalars().first()
+    repository = Repository()
+    lot = await repository.get_lot(db, lot_id)
 
     if not lot or lot.status != LotStatus.running:
         raise HTTPException(status_code=400, detail="Lot not available")
 
-    result = await db.execute(
-        select(Bid).where(Bid.lot_id == lot_id).order_by(Bid.amount.desc())
-    )
-    max_bid = result.scalars().first()
+    max_bid = await repository.get_lot_max_bid(db, lot_id)
 
     if max_bid and bid_request.amount <= max_bid.amount:
         raise HTTPException(status_code=400, detail="Bid must be higher than current maximum")
@@ -78,7 +74,7 @@ async def get_active_lots(db: AsyncSession = db_dependency):
     """
     repository = Repository()
     result = await repository.get_active_lots(db)
-    return result.scalars().all()
+    return result
 
 
 @router.websocket("/ws/lots/{lot_id}")

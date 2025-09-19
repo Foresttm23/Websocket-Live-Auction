@@ -44,7 +44,7 @@ class LotResponse(BaseModel):
 
     @computed_field
     @property
-    def time_till_end(self) -> float:
+    def time_till_end(self):
         return max((self.end_time - datetime.utcnow()).total_seconds(), 0)
 
     class Config:
