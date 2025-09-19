@@ -40,13 +40,13 @@ async def place_bid(lot_id: int, bid_request: BidRequest, db: AsyncSession = db_
 
     max_bid = await repository.get_lot_max_bid(db, lot_id)
 
-    if max_bid and bid_request.amount <= max_bid.amount:
+    if bid_request.amount <= max_bid:
         raise HTTPException(status_code=400, detail="Bid must be higher than current maximum")
 
     new_bid = Bid(**bid_request.model_dump(), lot_id=lot_id)
     db.add(new_bid)
 
-    if datetime.utcnow() - lot.end_time <= timedelta(seconds=60):
+    if (lot.end_time - datetime.utcnow()).total_seconds() <= 60:
         lot.end_time = datetime.utcnow() + timedelta(seconds=60)
 
     await db.commit()

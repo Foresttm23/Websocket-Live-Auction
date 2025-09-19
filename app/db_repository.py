@@ -23,4 +23,5 @@ class Repository:
         result = await session.execute(
             select(Bid).where(Bid.lot_id == lot_id).order_by(Bid.amount.desc())
         )
-        return result.scalars().first()
+        max_bid = result.scalars().first()
+        return max_bid.amount if max_bid else 0
