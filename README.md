@@ -1,10 +1,10 @@
-Клонувати проєкт та перейти в його рипозиторій
+Clone project and navigate to its dir.
 
 `git clone https://github.com/Foresttm23/Websocket-Live-Auction.git`
 
 `cd Websocket-Live-Auction`
 
-Далі в терміналі прописати:
+Then launch docker container using command:
 `docker compose up --build`
 
-Для тестування ендпоінтів використовувався `PostmanCanary`, для Вебсокетів `PostmanCanary` із вкладкою `Websocket`
+For testing endpoints were used `PostmanCanary`, for Websocket testing `PostmanCanary` with open `Websocket` tab.
