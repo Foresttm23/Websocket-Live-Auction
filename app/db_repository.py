@@ -14,14 +14,14 @@ class Repository:
     @staticmethod
     async def get_lot(session: AsyncSession, lot_id: int):
         result = await session.execute(
-            select(Lot).where(Lot.id == lot_id)
+            select(Lot).where(Lot.id == lot_id).with_for_update()
         )
         return result.scalars().first()
 
     @staticmethod
     async def get_lot_max_bid(session: AsyncSession, lot_id: int):
         result = await session.execute(
-            select(Bid).where(Bid.lot_id == lot_id).order_by(Bid.amount.desc())
+            select(Bid).where(Bid.lot_id == lot_id).order_by(Bid.amount.desc()).with_for_update()
         )
         max_bid = result.scalars().first()
         return max_bid.amount if max_bid else 0
